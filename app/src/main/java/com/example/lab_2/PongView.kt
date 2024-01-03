@@ -15,7 +15,6 @@ class PongView(context: Context?, private val pongClient: PongClient) : View(con
 {
     private val paint = Paint()
     private var canvasSize: Size? = null
-    private val layoutPaint: Paint? = null
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)

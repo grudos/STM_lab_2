@@ -12,7 +12,6 @@ import java.io.ObjectOutputStream
 import java.net.InetSocketAddress
 import java.net.Socket
 
-
 class PongClient(private val serverHostName: String) : Thread() {
     private var callbackListener: PongConnectionListener? = null
     private var callbackHandler: Activity? = null

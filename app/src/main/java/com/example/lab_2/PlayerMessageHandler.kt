@@ -5,8 +5,7 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.net.Socket
 
-
-class PlayerMessageReceiver(
+class PlayerMessageHandler(
     private val server: PongServer,
     private val playerSocket: Socket,
     private val playerId: Int

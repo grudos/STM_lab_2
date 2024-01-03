@@ -3,7 +3,6 @@ package com.example.lab_2
 import com.example.lab_2.messages.BallData
 import kotlin.math.sign
 
-
 class Ball(private val startTime: Long)
 {
     private val acceleration = 32.0f
@@ -26,7 +25,7 @@ class Ball(private val startTime: Long)
         }
 
     private val currentTime: Float
-        private get() = (System.currentTimeMillis() - startTime) / 1000.0f
+        get() = (System.currentTimeMillis() - startTime) / 1000.0f
 
 
     fun update(s0: Point?, negate_x: Boolean, negate_y: Boolean) {

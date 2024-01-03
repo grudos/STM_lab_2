@@ -1,6 +1,5 @@
 package com.example.lab_2
 
-
 import android.graphics.RectF
 import android.util.Log
 import android.util.Range
@@ -11,20 +10,15 @@ import com.example.lab_2.messages.PaletteInfo
 import com.example.lab_2.messages.PaletteUpdate
 import com.example.lab_2.messages.ScoreData
 import java.io.IOException
-import java.io.InputStream
 import java.net.ServerSocket
 
-
-// this shit handles received messages from players and updates ball
-// and sends updates back to them
 class PongServer : Thread() {
     private var server: ServerSocket? = null
-    private lateinit var players: Array<PlayerMessageReceiver?>
+    private lateinit var players: Array<PlayerMessageHandler?>
     private var ball: Ball? = null
     private lateinit var playerInfo: Array<PlayerInfo?>
     private var pPaletteRange: Range<Float>? = null
     override fun run() {
-        val inputStream: InputStream? = null
         try {
             server = ServerSocket(Port)
 
@@ -33,7 +27,7 @@ class PongServer : Thread() {
             players = arrayOfNulls(2)
             for (i in 0..1) {
                 val socket = server!!.accept()
-                players[i] = PlayerMessageReceiver(this, socket, i)
+                players[i] = PlayerMessageHandler(this, socket, i)
                 players[i]!!.start()
             }
             initializeTable(startTime)
@@ -64,7 +58,7 @@ class PongServer : Thread() {
     @Synchronized
     fun handleMessage(playerId: Int, message: Any) {
         if (message is PaletteUpdate) {
-            val update: PaletteUpdate = message as PaletteUpdate
+            val update: PaletteUpdate = message
             playerInfo[playerId]!!.position.y += update.yDelta
             sendPaletteData()
         }
@@ -84,13 +78,17 @@ class PongServer : Thread() {
         var ballUpdated = false
         var scoreUpdated = false
         val s: Point = ball!!.currentPos
+
+        // bounce off the edges
         if (s.y > TableSize.height || s.y < 0.0f) {
             s.y = if (s.y > TableSize.height) TableSize.height.toInt() else 0
             ball!!.update(s, false, true)
             ballUpdated = true
         }
+
         val p0Scored: Boolean = s.x > TableSize.getWidth()
         val p1Scored = s.x < 0.0f
+
         if (p0Scored || p1Scored) {
             playerInfo[if (p1Scored) 1 else 0]!!.score++
             ball!!.update(ballStartingPos, BallStartingVelocity)
@@ -105,6 +103,8 @@ class PongServer : Thread() {
                     (pPalettePos.x + PaletteSize.width).toFloat(),
                     (pPalettePos.y + PaletteSize.height).toFloat()
                 )
+
+                // bounce off the palettes
                 if (paletteRect.contains(s.x.toFloat(), s.y.toFloat())) {
                     s.x = if (i == 0) pPalettePos.x + PaletteSize.width + 1 else pPalettePos.x - 1
                     ball!!.update(s, true, false)
@@ -121,7 +121,7 @@ class PongServer : Thread() {
     }
 
     private val ballStartingPos: Point
-        private get() = Point((TableSize.width / 2).toInt(), (TableSize.height / 2).toInt())
+        get() = Point((TableSize.width / 2).toInt(), (TableSize.height / 2).toInt())
 
     private fun sendMessageToAll(message: Any) {
         for (i in players.indices) {
